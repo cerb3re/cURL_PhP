@@ -17,7 +17,7 @@ return [
         ],
         "db" => [
             "host" => "127.0.0.1",
-            "dbname" => "todo-app",
+            "dbname" => "afpa",
             "user" => "root",
             "pass" => ""
         ],

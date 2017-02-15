@@ -1,13 +1,135 @@
 <?php
 // Routes
 
+//ROUTE DE L'APPLI ANDROID
+$app->group('/appli', function () use ($app)
+{
+  $app->get('/listing',function ($request, $response, $args) {
+       $sth = $this->db->prepare("
+        SELECT 
+          name, surname, phone, email, departure, arrived, nbplace, dateD, dateA, dayPost
+        FROM 
+          destination 
+        INNER JOIN 
+          user ON destination.userId = user.id 
+        INNER JOIN 
+          date ON destination.dateId = date.id
+        ");
+      $sth->execute();
+      $todos = $sth->fetchAll();
+      $array = array("data" => $todos);
+      return $this->response->withJson($array);    
+  });
+  
+  $app->get('/user',function ($request, $response, $args) {
+       $sth = $this->db->prepare("
+        SELECT 
+           name, id
+        FROM 
+          user 
+        ");
+      $sth->execute();
+      $todos = $sth->fetchAll();
+      $array = array("data" => $todos);
+      return $this->response->withJson($array);    
+  });
+
+  $app->get('/listing/complet', function($request, $response, $args)
+  {
+    $res = $this->db->prepare("
+      SELECT
+        *
+      FROM
+        destination
+      INNER JOIN
+        user ON destination.userId = user.id
+      INNER JOIN
+        date ON destination.dateId = date.id
+    ");
+    $res->execute();
+    $complet  = $res->fetchAll();
+    //$array    = array("data" => $complet);
+    $jsonEncode = json_encode($complet);
+    return ($jsonEncode);
+  });
+  // DEBUG
+  $app->get('/listing/debug', function($request, $response, $args)
+  {
+    $res = $this->db->prepare("
+      SELECT
+        *
+      FROM
+        destination
+      INNER JOIN
+        user ON destination.userId = user.id
+      INNER JOIN
+        date ON destination.dateId = date.id
+    ");
+    $res->execute();
+    $complet  = $res->fetchAll();
+    //$array    = array("data" => $complet);
+    $jsonEncode = json_encode($complet);
+    $jsonDecode = json_decode($jsonEncode, true);
+
+    print $jsonEncode;
+    print "<br /><br />";
+    $int = 0;
+    $count = 0;
+    foreach ($jsonDecode as $item) 
+    {
+      print 'id: '        . $item["id"] . '<br />';
+      print 'userId: '    . $item["userId"] . '<br />';
+      print 'departure: ' . $item["departure"] . '<br />';
+      print 'arrived: '   . $item["arrived"] . '<br />';
+      print 'nbPlace: '   . $item["nbPlace"] . '<br />';
+      print 'dateId: '    . $item["dateId"] . '<br />';
+      print 'name: '      . $item["name"] . '<br />';
+      print 'surname: '   . $item["surname"] . '<br />';
+      print 'phone: '     . $item["phone"] . '<br />';
+      print 'email: '     . $item["email"] . '<br />';
+      print 'dateD: '     . $item["dateD"] . '<br />';
+      print 'dateA: '     . $item["dateA"] . '<br />';
+      print 'dayPost: '   . $item["dayPost"] . '<br />';  
+      print "<br />";
+      $count += 1;
+      $int = sizeof($item);
+    }
+    print "<br />Il y a " . $int . " éléments à traiter par groupe" ;
+    print "<br />Il y a " . $count . " groupes" ;
+    print "<br /> Pour une total de " . $int * $count . " éléments" ;
+  });
+
+  $app->post('/post', function($request, $response, $args)
+  {
+        $submit = json_decode($request->getBody());
+        $sql = "INSERT INTO `destination` (`id`, `userId`, `departure`, `arrived`, `nbPlace`, `dateId`) VALUES (NULL, :userId, :departure, :arrived, :nbPlace, :dateId)";
+        
+        $sth = $this->db->prepare($sql);
+        $sth->bindParam("id",           $todo->id);
+        $sth->bindParam("userId",       $todo->userId);
+        $sth->bindParam("departure",    $todo->departure);
+        $sth->bindParam("arrived",      $todo->arrived);
+        $sth->bindParam("nbPlace",      $todo->nbPlace);
+        $sth->bindParam("dateId",       $todo->dateId);
+        $sth->execute();
+        $submit->id=$this->db->lastInsertId();
+        //$input['id'] = $this->db->lastInsertId();
+        //$this->response->withStatus(201);
+        return $this->response->withJson($submit)->withStatus(201);
+
+    return "ok";
+  });
+});
+// ROUTE DEFAULT
+
 $app->group('/api/v1', function () use ($app) {
   // get all todos
   $app->get('/todos',function ($request, $response, $args) {
-       $sth = $this->db->prepare("SELECT * FROM task ORDER BY task");
+       $sth = $this->db->prepare("SELECT * FROM destination");
       $sth->execute();
       $todos = $sth->fetchAll();
-      return $this->response->withJson($todos);
+      $array = array("data" => $todos);
+      return $this->response->withJson($array);
   });
 
   $app->get('/todos/[{id}]', function ($request, $response, $args) {
@@ -17,7 +139,6 @@ $app->group('/api/v1', function () use ($app) {
         $todos = $sth->fetchObject();
         return $this->response->withJson($todos);
     });
-
 
     $app->get('/todos/search/[{query}]', function ($request, $response, $args) {
            $sth = $this->db->prepare("SELECT * FROM task WHERE task LIKE :query ORDER BY task");
@@ -31,7 +152,7 @@ $app->group('/api/v1', function () use ($app) {
       // Add a new todo
     $app->post('/todos', function ($request, $response) {
         $todo = json_decode($request->getBody());
-        $sql = "INSERT INTO task (task, priority) VALUES (:task, :priority)";
+        $sql = "INSERT INTO destination (task, priority) VALUES (:task, :priority)";
         $sth = $this->db->prepare($sql);
         $sth->bindParam("task", $todo->task);
         $sth->bindParam("priority", $todo->priority);
