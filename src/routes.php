@@ -98,7 +98,7 @@ $app->group('/appli', function () use ($app)
     print "<br />Il y a " . $count . " groupes" ;
     print "<br /> Pour une total de " . $int * $count . " éléments" ;
   });
-
+  // AJOUTER DES DONNEES DEPUIS L'APPLI ANDROID
   $app->post('/post', function($request, $response)
   {
         $submit = json_decode($request->getBody());
@@ -119,6 +119,39 @@ $app->group('/appli', function () use ($app)
         //$this->response->withStatus(201);
         return $this->response->withJson($submit)->withStatus(201);
   });
+  // METTRE A JOUR DES DONNEES DEPUIS L'APPLI ANDROID
+      $app->put('/update', function ($request, $response, $args) {
+        //$input = $request->getParsedBody();
+        //$this->logger->debug($request->getBody());
+        $todo = json_decode($request->getBody());
+        //$sql = "UPDATE destination SET task=:task,priority=:priority  WHERE id=:id";
+        $sql = "UPDATE destination SET (`userId`, `departure`, `arrived`, `nbPlace`, `dateId`) WHERE id = :id";
+         $sth = $this->db->prepare($sql);
+        $sth->bindParam("id", $args['id']);
+        $sth->bindParam("userId", $todo->userId);
+        $sth->bindParam("departure", $todo->departure);
+        $sth->bindParam("arrived", $todo->arrived); 
+        $sth->bindParam("nbPlace", $todo->nbPlace);
+        if ($sth->bindParam("dateId", $todo->dateId) == null)
+        {
+            
+        }
+        else
+        {
+            $sth->bindParam("dateId", $todo->dateId);
+        }
+        $sth->execute();
+
+        //load complete oci_fetch_object
+       $sth = $this->db->prepare("SELECT * FROM task WHERE id=:id");
+       $sth->bindParam("id", $args['id']);
+       $sth->execute();
+       $todo = $sth->fetchObject();
+
+        //$input['id'] = $args['id'];
+        return $this->response->withJson($todo);
+    });
+
 });
 // ROUTE DEFAULT
 
