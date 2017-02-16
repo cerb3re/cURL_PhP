@@ -99,25 +99,25 @@ $app->group('/appli', function () use ($app)
     print "<br /> Pour une total de " . $int * $count . " éléments" ;
   });
 
-  $app->post('/post', function($request, $response, $args)
+  $app->post('/post', function($request, $response)
   {
         $submit = json_decode($request->getBody());
-        $sql = "INSERT INTO `destination` (`id`, `userId`, `departure`, `arrived`, `nbPlace`, `dateId`) VALUES (NULL, :userId, :departure, :arrived, :nbPlace, :dateId)";
+        $sql = "INSERT INTO destination (`userId`, `departure`, `arrived`, `nbPlace`, `dateId`) VALUES (:userId, :departure, :arrived, :nbPlace, :dateId)";
+        //$sql = "INSERT INTO `destination` (`userId`, `departure`, `arrived`, `nbPlace`, `dateId`) VALUES ('2', 'toto', 'titi', '4', '6')";
         
         $sth = $this->db->prepare($sql);
-        $sth->bindParam("id",           $todo->id);
-        $sth->bindParam("userId",       $todo->userId);
-        $sth->bindParam("departure",    $todo->departure);
-        $sth->bindParam("arrived",      $todo->arrived);
-        $sth->bindParam("nbPlace",      $todo->nbPlace);
-        $sth->bindParam("dateId",       $todo->dateId);
+        $sth->bindParam("userId",       $submit->userId);
+        $sth->bindParam("departure",    $submit->departure);
+        $sth->bindParam("arrived",      $submit->arrived);
+        $sth->bindParam("nbPlace",      $submit->nbPlace);
+        $sth->bindParam("dateId",       $submit->dateId);
         $sth->execute();
         $submit->id=$this->db->lastInsertId();
+         
+        
         //$input['id'] = $this->db->lastInsertId();
         //$this->response->withStatus(201);
         return $this->response->withJson($submit)->withStatus(201);
-
-    return "ok";
   });
 });
 // ROUTE DEFAULT
