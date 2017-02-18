@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Routes
 
 //ROUTE DE L'APPLI ANDROID
@@ -150,6 +150,13 @@ $app->group('/appli', function () use ($app)
 
         //$input['id'] = $args['id'];
         return $this->response->withJson($todo);
+    });
+	// DELETE FROM ID
+    $app->delete('/delete/[{id}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("DELETE FROM destination WHERE id=:id");
+        $sth->bindParam("id", $args['id']);
+        $sth->execute();
+        return $this->response->withStatus(204); //no-content
     });
 
 });

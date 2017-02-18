@@ -17,7 +17,7 @@ return [
         ],
         "db" => [
             "host" => "127.0.0.1",
-            "dbname" => "afpa",
+            "dbname" => "exoandroid",
             "user" => "root",
             "pass" => ""
         ],
